@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:recipify/providers/auth_provider.dart';
-import '../services/auth_service.dart';
+import 'package:recipify/providers/user_profile_provider.dart';
+import 'package:recipify/screens/profile_setup_screen.dart';
 import 'login_screen.dart';
 import 'signup_screen.dart';
 
 class AuthWrapper extends ConsumerWidget {
-  final Widget home; // your main app screen
+  final Widget home;
   const AuthWrapper({super.key, required this.home});
 
   @override
@@ -15,9 +15,7 @@ class AuthWrapper extends ConsumerWidget {
     final authState = ref.watch(authStateProvider);
 
     return authState.when(
-      loading: () => const Scaffold(
-        body: Center(child: CircularProgressIndicator(color: Colors.green)),
-      ),
+      loading: () => const _LoadingScreen(),
       error: (e, _) => Scaffold(
         body: Center(child: Text('Auth error: $e')),
       ),
@@ -27,8 +25,33 @@ class AuthWrapper extends ConsumerWidget {
           return showLogin ? const LoginScreen() : const SignUpScreen();
         }
 
-        return home;
-      }
+        final profileAsync = ref.watch(userProfileProvider);
+
+        return profileAsync.when(
+          loading: () => const _LoadingScreen(),
+          error: (e, _) => Scaffold(
+            body: Center(child: Text('Error loading profile: $e')),
+          ),
+          data: (profile) {
+            if (profile == null) return const ProfileSetupScreen();
+
+            return home;
+          },
+        );
+      },
+    );
+  }
+}
+
+class _LoadingScreen extends StatelessWidget {
+  const _LoadingScreen();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(
+        child: CircularProgressIndicator(color: Colors.green),
+      ),
     );
   }
 }

@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:recipify/models/user_profile.dart';
+import 'package:recipify/providers/auth_provider.dart';
 
 class FirestoreService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -20,15 +22,42 @@ class FirestoreService {
   }
 
   Future<void> createUserProfile(
-    String userId,
-    Map<String, dynamic> data,
+      UserProfile profile
   ) async {
     await _db
         .collection('users')
-        .doc(userId)
-        .collection('proflie')
+        .doc(profile.userId)
+        .collection('profile')
         .doc('data')
-        .set(data);
+        .set(profile.toMap());
+  }
+
+  Future<UserProfile?> getUserProfile(String userId) async {
+    final doc = await _db
+        .collection('users')
+        .doc(userId)
+        .collection('profile')
+        .doc('data')
+        .get();
+
+    if (!doc.exists) return null;
+    return UserProfile.fromMap(doc.data()!);
+  }
+
+  Stream<UserProfile?> watchUserProfile(String userId) {
+    return _db
+        .collection('users')
+        .doc(userId)
+        .collection('profile')
+        .doc('data')
+        .snapshots()
+        .map((doc) => doc.exists ? UserProfile.fromMap(doc.data()!) : null);
+  }
+
+  Future<void> markProfileComplete(String userId) async {
+    await _db.collection('users').doc(userId).update({
+      'profileComplete': true,
+    });
   }
 
   Future<void> logMeal(String userId, Map<String, dynamic> mealData) async {
