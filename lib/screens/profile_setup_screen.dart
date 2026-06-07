@@ -45,9 +45,6 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
       );
 
       await ref.read(firestoreServiceProvider).createUserProfile(profile);
-      await ref.read(firestoreServiceProvider).markProfileComplete(userId);
-
-      ref.invalidate(userProfileProvider);
     } catch (e) {
       if(mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

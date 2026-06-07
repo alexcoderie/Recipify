@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:recipify/models/user_profile.dart';
 import 'package:recipify/providers/auth_provider.dart';
 
@@ -24,12 +27,47 @@ class FirestoreService {
   Future<void> createUserProfile(
       UserProfile profile
   ) async {
+    final batch = _db.batch();
+
+    batch.set(
+      _db.collection('users')
+          .doc(profile.userId)
+          .collection('profile')
+          .doc('data'),
+      profile.toMap(),
+    );
+
+    batch.set(
+      _db.collection('users').doc(profile.userId),
+      {'profileComplete': true},
+      SetOptions(merge: true),
+    );
+
+    await batch.commit();
+  }
+
+  Future<String> uploadProfilePhoto(String userId, File imageFile) async {
+    final storageRef = FirebaseStorage.instance
+        .ref()
+        .child('profile_photos')
+        .child(userId)
+        .child('avatar.jpg');
+
+    final uploadTask = await storageRef.putFile(
+      imageFile,
+      SettableMetadata(contentType: 'image/jpeg'),
+    );
+
+    return await uploadTask.ref.getDownloadURL();
+  }
+
+  Future<void> updateProfilePhoto(String userId, String photoURL) async {
     await _db
         .collection('users')
-        .doc(profile.userId)
+        .doc(userId)
         .collection('profile')
         .doc('data')
-        .set(profile.toMap());
+        .update({'photoURL': photoURL});
   }
 
   Future<UserProfile?> getUserProfile(String userId) async {
@@ -52,12 +90,6 @@ class FirestoreService {
         .doc('data')
         .snapshots()
         .map((doc) => doc.exists ? UserProfile.fromMap(doc.data()!) : null);
-  }
-
-  Future<void> markProfileComplete(String userId) async {
-    await _db.collection('users').doc(userId).update({
-      'profileComplete': true,
-    });
   }
 
   Future<void> logMeal(String userId, Map<String, dynamic> mealData) async {

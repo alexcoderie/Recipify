@@ -7,10 +7,10 @@ final firestoreServiceProvider = Provider<FirestoreService>(
   (ref) => FirestoreService(),
 );
 
-final userProfileProvider = FutureProvider<UserProfile?>((ref) async {
+final userProfileProvider = StreamProvider<UserProfile?>((ref) {
   final userId = ref.watch(currentUserIdProvider);
-  if (userId == null) return null;
+  if (userId == null) return Stream.value(null);
 
   final firestoreService = ref.read(firestoreServiceProvider);
-  return firestoreService.getUserProfile(userId);
+  return firestoreService.watchUserProfile(userId);
 });

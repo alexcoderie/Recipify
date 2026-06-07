@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:recipify/screens/main_shell.dart';
 import 'firebase_options.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -23,7 +24,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Recipify',
       theme: ThemeData(colorSchemeSeed: Colors.green, useMaterial3: true),
-      home: AuthWrapper(home: MyHomePage(title: 'Flutter Demo Home Page')),
+      home: AuthWrapper(home: const MainShell())
     );
   }
 }

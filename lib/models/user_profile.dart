@@ -17,6 +17,7 @@ class UserProfile {
   final int dailyProteinGoal;
   final int dailyCarbsGoal;
   final int dailyFatGoal;
+  final String? photoURL;
 
   UserProfile({
     required this.userId,
@@ -31,6 +32,7 @@ class UserProfile {
     required this.dailyProteinGoal,
     required this.dailyCarbsGoal,
     required this.dailyFatGoal,
+    this.photoURL,
   });
 
   Map<String, dynamic> toMap() => {
@@ -46,21 +48,23 @@ class UserProfile {
     'dailyProteinGoal': dailyProteinGoal,
     'dailyCarbsGoal': dailyCarbsGoal,
     'dailyFatGoal': dailyFatGoal,
+    'photoURL': photoURL,
   };
 
   factory UserProfile.fromMap(Map<String, dynamic> map) => UserProfile(
-    userId: map['userId'],
-    displayName: map['displayName'],
-    age: map['age'],
-    weightKg: (map['weightKg'] as num).toDouble(),
-    heightCm: (map['heightCm'] as num).toDouble(),
-    goal: DietaryGoal.values.byName(map['goal']),
-    activityLevel: ActivityLevel.values.byName(map['activityLevel']),
-    sex: Sex.values.byName(map['sex']),
-    dailyCalorieGoal: map['dailyCalorieGoal'],
-    dailyProteinGoal: map['dailyProteinGoal'],
-    dailyCarbsGoal: map['dailyCarbsGoal'],
-    dailyFatGoal: map['dailyFatGoal'],
+    userId: map['userId'] ?? '',
+    displayName: map['displayName'] ?? '',
+    age: map['age'] ?? 0,
+    weightKg: (map['weightKg'] as num? ?? 0).toDouble(),
+    heightCm: (map['heightCm'] as num? ?? 0).toDouble(),
+    goal: DietaryGoal.values.byName(map['goal'] ?? DietaryGoal.maintenance.name),
+    activityLevel: ActivityLevel.values.byName(map['activityLevel'] ?? ActivityLevel.moderatelyActive.name),
+    sex: Sex.values.byName(map['sex'] ?? map['gender'] ?? Sex.male.name),
+    dailyCalorieGoal: map['dailyCalorieGoal'] ?? 0,
+    dailyProteinGoal: map['dailyProteinGoal'] ?? 0,
+    dailyCarbsGoal: map['dailyCarbsGoal'] ?? 0,
+    dailyFatGoal: map['dailyFatGoal'] ?? 0,
+    photoURL: map['photoURL'] as String?,
   );
 
   static UserProfile calculate({
@@ -72,6 +76,7 @@ class UserProfile {
     required DietaryGoal goal,
     required ActivityLevel activityLevel,
     required Sex sex,
+    String? photoURL,
   }) {
     double bmr;
 
@@ -120,6 +125,7 @@ class UserProfile {
       dailyProteinGoal: protein,
       dailyCarbsGoal: carbs,
       dailyFatGoal: fat,
+      photoURL: photoURL,
     );
   }
 }
