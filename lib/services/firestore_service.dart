@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:recipify/models/meal_entry.dart';
 import 'package:recipify/models/user_profile.dart';
 import 'package:recipify/providers/auth_provider.dart';
 
@@ -13,7 +14,7 @@ class FirestoreService {
     final docRef = _db.collection('users').doc(user.uid);
     final doc = await docRef.get();
 
-    if(doc.exists) return;
+    if (doc.exists) return;
 
     await docRef.set({
       'email': user.email,
@@ -24,24 +25,21 @@ class FirestoreService {
     });
   }
 
-  Future<void> createUserProfile(
-      UserProfile profile
-  ) async {
+  Future<void> createUserProfile(UserProfile profile) async {
     final batch = _db.batch();
 
     batch.set(
-      _db.collection('users')
+      _db
+          .collection('users')
           .doc(profile.userId)
           .collection('profile')
           .doc('data'),
       profile.toMap(),
     );
 
-    batch.set(
-      _db.collection('users').doc(profile.userId),
-      {'profileComplete': true},
-      SetOptions(merge: true),
-    );
+    batch.set(_db.collection('users').doc(profile.userId), {
+      'profileComplete': true,
+    }, SetOptions(merge: true));
 
     await batch.commit();
   }
@@ -92,17 +90,75 @@ class FirestoreService {
         .map((doc) => doc.exists ? UserProfile.fromMap(doc.data()!) : null);
   }
 
-  Future<void> logMeal(String userId, Map<String, dynamic> mealData) async {
-    final today = DateTime.now();
+  Future<void> logMeal(String userId, MealEntry entry) async {
+    final today = entry.loggedAt;
     final dateKey =
         '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
-    await _db
+    final batch = _db.batch();
+
+    final entryRef = _db
         .collection('users')
         .doc(userId)
         .collection('mealLogs')
         .doc(dateKey)
         .collection('entries')
-        .add(mealData);
+        .doc();
+
+    batch.set(entryRef, entry.toMap());
+
+    final dayRef = _db
+        .collection('users')
+        .doc(userId)
+        .collection('mealLogs')
+        .doc(dateKey);
+
+    batch.set(dayRef, {
+      'totalCalories': FieldValue.increment(entry.totalCalories),
+      'totalProtein': FieldValue.increment(entry.totalProtein),
+      'totalCarbs': FieldValue.increment(entry.totalCarbs),
+      'totalFat': FieldValue.increment(entry.totalFat),
+      'date': dateKey,
+    }, SetOptions(merge: true));
+
+    await batch.commit();
+  }
+
+  Stream<DailyLog> watchTodayLog(String userId) {
+    final today = DateTime.now();
+    final dateKey =
+        '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+
+    return _db
+        .collection('users')
+        .doc(userId)
+        .collection('mealLogs')
+        .doc(dateKey)
+        .collection('entries')
+        .orderBy('loggedAt')
+        .snapshots()
+        .asyncMap((snapshot) async {
+      // Fetch the day document for totals
+      final dayDoc = await _db
+          .collection('users')
+          .doc(userId)
+          .collection('mealLogs')
+          .doc(dateKey)
+          .get();
+
+      final dayData = dayDoc.data() ?? {};
+      final entries = snapshot.docs
+          .map((doc) => MealEntry.fromMap(doc.id, doc.data()))
+          .toList();
+
+      return DailyLog(
+        date:          dateKey,
+        totalCalories: (dayData['totalCalories'] as num?)?.toDouble() ?? 0,
+        totalProtein:  (dayData['totalProtein']  as num?)?.toDouble() ?? 0,
+        totalCarbs:    (dayData['totalCarbs']    as num?)?.toDouble() ?? 0,
+        totalFat:      (dayData['totalFat']      as num?)?.toDouble() ?? 0,
+        entries:       entries,
+      );
+    });
   }
 
   Stream<QuerySnapshot> getTodaysMeals(String userId) {

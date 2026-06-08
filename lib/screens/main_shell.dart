@@ -29,11 +29,6 @@ class _MainShellState extends State<MainShell> {
       bottomNavigationBar: _BottomNav(
         currentIndex: _currentIndex,
         onTap: (index) {
-          // Scanner is on index 2
-          if (index == 2) {
-            // TODO: open scanner
-            return;
-          }
           setState(() => _currentIndex = index);
         },
       ),
