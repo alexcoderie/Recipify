@@ -13,10 +13,6 @@ class AuthService {
 
   User? get currentUser => _auth.currentUser;
 
-  // AuthService() {
-  //   _initializeGoogleSignIn();
-  // }
-
   Future<UserCredential?> signUpWithEmail(String email, String password) async {
     try {
       final credential = await _auth.createUserWithEmailAndPassword(
@@ -49,24 +45,8 @@ class AuthService {
     await _auth.sendPasswordResetEmail(email: email);
   }
 
-  // Future<void> _initializeGoogleSignIn() async {
-  //   try {
-  //     await _googleSignIn.initialize();
-  //     _isGoogleSignInInitialized = true;
-  //   } catch (e) {
-  //     print('Failed to initialize Google Sign In: $e');
-  //   }
-  // }
-  //
-  // Future<void> _ensureGoogleSignInInitialized() async {
-  //   if (!_isGoogleSignInInitialized) {
-  //     await _initializeGoogleSignIn();
-  //   }
-  // }
-
   Future<UserCredential?> signInWithGoogle() async {
     try {
-      // _ensureGoogleSignInInitialized();
       final GoogleSignInAccount googleUser = await _googleSignIn.authenticate();
       final idToken = googleUser.authentication.idToken;
       final authorizationClient = googleUser.authorizationClient;

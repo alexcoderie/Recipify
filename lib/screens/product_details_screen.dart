@@ -134,7 +134,6 @@ class _ProductDetailsScreenState extends ConsumerState<ProductDetailsScreen> {
                   padding: const EdgeInsets.all(16),
                   child: Column(
                     children: [
-                      // Product card
                       Container(
                         width: double.infinity,
                         padding: const EdgeInsets.all(20),
@@ -584,7 +583,6 @@ class _LogMealSheetState extends ConsumerState<_LogMealSheet> {
 
   @override
   Widget build(BuildContext context) {
-    // Live macro preview as user types
     final grams = double.tryParse(_gramsController.text) ?? 0;
     final calories = (widget.product.calories * grams / 100);
     final protein = (widget.product.protein * grams / 100);
@@ -601,7 +599,6 @@ class _LogMealSheetState extends ConsumerState<_LogMealSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Handle
             Center(
               child: Container(
                 width: 40,
@@ -624,7 +621,6 @@ class _LogMealSheetState extends ConsumerState<_LogMealSheet> {
             ),
             const SizedBox(height: 24),
 
-            // Grams input
             const Text('Amount', style: TextStyle(fontWeight: FontWeight.w600)),
             const SizedBox(height: 8),
             Container(
@@ -649,7 +645,7 @@ class _LogMealSheetState extends ConsumerState<_LogMealSheet> {
                         border: InputBorder.none,
                         hintText: '100',
                       ),
-                      onChanged: (_) => setState(() {}), // rebuild preview
+                      onChanged: (_) => setState(() {}),
                     ),
                   ),
                   Container(
@@ -677,7 +673,6 @@ class _LogMealSheetState extends ConsumerState<_LogMealSheet> {
             ),
             const SizedBox(height: 20),
 
-            // Live macro preview
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(16),
@@ -717,7 +712,6 @@ class _LogMealSheetState extends ConsumerState<_LogMealSheet> {
             ),
             const SizedBox(height: 20),
 
-            // Confirm button
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(

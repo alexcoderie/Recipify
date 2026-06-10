@@ -38,7 +38,6 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
         builder: (_) => ProductDetailsScreen(barcode: barcode),
       ),
     ).then((_) {
-      // Resume scanning when coming back
       setState(() => _isProcessing = false);
       _controller.start();
     });
@@ -51,7 +50,6 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // ── Top bar ─────────────────────────────────────────
             Padding(
               padding: const EdgeInsets.symmetric(
                   horizontal: 8, vertical: 4),
@@ -92,16 +90,13 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  // Full screen camera
                   MobileScanner(
                     controller: _controller,
                     onDetect: _onBarcodeDetected,
                   ),
 
-                  // Dark overlay with transparent cutout
                   _ScannerOverlay(),
 
-                  // Scanning frame with green corners
                   _ScannerFrame(isScanning: _isProcessing),
                 ],
               ),
@@ -133,7 +128,6 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
                       onPressed: _isProcessing
                           ? null
                           : () => _navigateToProduct('737628064502'),
-                      // ↑ test barcode — replace with manual entry later
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
                         foregroundColor: Colors.white,
@@ -182,9 +176,8 @@ class _OverlayPainter extends CustomPainter {
       height: frameSize,
     );
 
-    final paint = Paint()..color = Colors.black.withOpacity(0.6);
+    final paint = Paint()..color = Colors.black.withValues(alpha: 0.6);
 
-    // Draw dark overlay around the frame
     canvas.drawPath(
       Path.combine(
         PathOperation.difference,
@@ -201,8 +194,6 @@ class _OverlayPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-// ── Scanner frame with green corner brackets ─────────────────────────────────
-
 class _ScannerFrame extends StatelessWidget {
   final bool isScanning;
   const _ScannerFrame({required this.isScanning});
@@ -214,16 +205,14 @@ class _ScannerFrame extends StatelessWidget {
       height: 280,
       child: Stack(
         children: [
-          // Faint full border
           Container(
             decoration: BoxDecoration(
               border: Border.all(
-                  color: Colors.white.withOpacity(0.3), width: 1),
+                  color: Colors.white.withValues(alpha: 0.3), width: 1),
               borderRadius: BorderRadius.circular(16),
             ),
           ),
 
-          // Scanning line
           if (isScanning)
             Center(
               child: AnimatedOpacity(
@@ -236,7 +225,6 @@ class _ScannerFrame extends StatelessWidget {
               ),
             ),
 
-          // Top-left corner
           Positioned(
             top: 0, left: 0,
             child: _Corner(
@@ -245,17 +233,14 @@ class _ScannerFrame extends StatelessWidget {
               topLeft: true,
             ),
           ),
-          // Top-right corner
           Positioned(
             top: 0, right: 0,
             child: _Corner(topRight: true),
           ),
-          // Bottom-left corner
           Positioned(
             bottom: 0, left: 0,
             child: _Corner(bottomLeft: true),
           ),
-          // Bottom-right corner
           Positioned(
             bottom: 0, right: 0,
             child: _Corner(bottomRight: true),

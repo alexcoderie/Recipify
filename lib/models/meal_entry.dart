@@ -51,10 +51,10 @@ class MealEntry {
       brand: map['brand'] ?? '',
       grams: (map['grams'] as num?)?.toDouble() ?? 100,
       loggedAt: DateTime.parse(map['loggedAt']),
-      calories: (map['caloriesPer100g'] as num?)?.toDouble() ?? 0,
-      protein: (map['proteinPer100g'] as num?)?.toDouble() ?? 0,
-      carbs: (map['carbsPer100g'] as num?)?.toDouble() ?? 0,
-      fat: (map['fatPer100g'] as num?)?.toDouble() ?? 0,
+      calories: (map['calories'] as num?)?.toDouble() ?? 0,
+      protein: (map['protein'] as num?)?.toDouble() ?? 0,
+      carbs: (map['carbs'] as num?)?.toDouble() ?? 0,
+      fat: (map['fat'] as num?)?.toDouble() ?? 0,
     );
   }
 }

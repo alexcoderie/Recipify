@@ -137,28 +137,27 @@ class FirestoreService {
         .orderBy('loggedAt')
         .snapshots()
         .asyncMap((snapshot) async {
-      // Fetch the day document for totals
-      final dayDoc = await _db
-          .collection('users')
-          .doc(userId)
-          .collection('mealLogs')
-          .doc(dateKey)
-          .get();
+          final dayDoc = await _db
+              .collection('users')
+              .doc(userId)
+              .collection('mealLogs')
+              .doc(dateKey)
+              .get();
 
-      final dayData = dayDoc.data() ?? {};
-      final entries = snapshot.docs
-          .map((doc) => MealEntry.fromMap(doc.id, doc.data()))
-          .toList();
+          final dayData = dayDoc.data() ?? {};
+          final entries = snapshot.docs
+              .map((doc) => MealEntry.fromMap(doc.id, doc.data()))
+              .toList();
 
-      return DailyLog(
-        date:          dateKey,
-        totalCalories: (dayData['totalCalories'] as num?)?.toDouble() ?? 0,
-        totalProtein:  (dayData['totalProtein']  as num?)?.toDouble() ?? 0,
-        totalCarbs:    (dayData['totalCarbs']    as num?)?.toDouble() ?? 0,
-        totalFat:      (dayData['totalFat']      as num?)?.toDouble() ?? 0,
-        entries:       entries,
-      );
-    });
+          return DailyLog(
+            date: dateKey,
+            totalCalories: (dayData['totalCalories'] as num?)?.toDouble() ?? 0,
+            totalProtein: (dayData['totalProtein'] as num?)?.toDouble() ?? 0,
+            totalCarbs: (dayData['totalCarbs'] as num?)?.toDouble() ?? 0,
+            totalFat: (dayData['totalFat'] as num?)?.toDouble() ?? 0,
+            entries: entries,
+          );
+        });
   }
 
   Stream<QuerySnapshot> getTodaysMeals(String userId) {
